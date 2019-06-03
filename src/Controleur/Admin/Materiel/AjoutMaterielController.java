@@ -9,6 +9,9 @@ import Dao.MaterielDao;
 import Model.Materiel;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import java.net.URL;
 import java.util.Optional;
@@ -28,77 +31,133 @@ import org.controlsfx.control.NotificationPane;
  */
 public class AjoutMaterielController implements Initializable {
 
-    @FXML
-    private JFXTextField nom;
+	@FXML
+	private JFXTextField nom;
 
-    @FXML
-    private JFXTextField description;
+	@FXML
+	private JFXTextField description;
 
-    @FXML
-    private JFXTextField prix;
+	@FXML
+	private JFXTextField prix;
 
-    @FXML
-    private JFXComboBox<String> type;
+	@FXML
+	private JFXComboBox<String> type;
 
-    @FXML
-    private NotificationPane Notif;
+	@FXML
+	private NotificationPane Notif;
 
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        UnaryOperator<TextFormatter.Change> filter = change -> {
-            String text = change.getText();
+	/**
+	 * Initializes the controller class.
+	 */
+	@Override
+	public void initialize(URL url, ResourceBundle rb) {
+		UnaryOperator<TextFormatter.Change> filter = change -> {
+			String text = change.getText();
 
-            if (text.matches("[0-9]*")) {
-                return change;
-            }
+			if (text.matches("[0-9]*")) {
+				return change;
+			}
 
-            return null;
-        };
-        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
-        prix.setTextFormatter(textFormatter);
-    }
+			return null;
+		};
+		TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+		prix.setTextFormatter(textFormatter);
 
-    @FXML
-    void handleReset(ActionEvent event) {
-        nom.setText(null);
-        description.setText(null);
-        type.setValue(null);
-        prix.setText(null);
-    }
+		nom.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
-    private boolean verifAjoutform(String Type, String nom, String description) {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
+				String nomString = nom.getText();
 
-        return (Type == null || description.length() == 0 || nom.length() == 0 ? false : true);
-    }
+				if (arg1) {
+					try {
 
-    @FXML
-    void handleAjouter(ActionEvent event) {
+						if (nomString.matches("[A-Za-z]*") == false) {
 
-        String Type = type.getSelectionModel().getSelectedItem();
-        String nomF = this.nom.getText();
-        String descriptionF = this.description.getText();
-        if (!this.prix.getText().equals("") && verifAjoutform(Type, nomF, descriptionF)) {
-            int prixF = Integer.parseInt(this.prix.getText());
-            Materiel materiel = new Materiel(nomF, descriptionF, Type, prixF, "Nouveau");
+							nom_valide = false;
+						} else if (nomString.matches("") == true) {
+							nom_valide = false;
+						} else {
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Adding Materiel Confirmation");
-            alert.setHeaderText("New Materiel will be added");
-            alert.setContentText("Are you ok with this?");
-            Optional<ButtonType> result = alert.showAndWait();
+							nom_valide = true;
+						}
 
-            if (result.get() == ButtonType.OK) {
-                MaterielDao.AjouterMateriel(materiel);
-                handleReset(event);
-            } else {
-                handleReset(event);
-            }
-        } else {
-            Notif.show("Formulaire invalide ");
+					} catch (Exception e) {
+						nom_valide = false;
+					}
 
-        }
-    }
+				}
+			}
+
+		});
+		prix.focusedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
+				String prixtext = prix.getText();
+				if (arg1)
+					try {
+
+						if (prixtext.matches("[0-9.]*") == false) {
+							prix_valide = false;
+						} else if (prix.getText().isEmpty()) {
+							prix_valide = false;
+
+						}
+
+						else {
+							prix_valide = true;
+						}
+
+					} catch (Exception e) {
+					}
+
+			}
+
+		});
+	}
+
+	@FXML
+	void handleReset(ActionEvent event) {
+		nom.setText(null);
+		description.setText(null);
+		type.setValue(null);
+		prix.setText(null);
+	}
+
+	public boolean prix_valide = false;
+	public boolean nom_valide = false;
+
+	private boolean verifAjoutform(String Type, String nom, String description) {
+
+		return (Type == null || description.length() == 0 || nom_valide==false || prix_valide==false ? false : true);
+	}
+
+	@FXML
+	void handleAjouter(ActionEvent event) {
+
+		String Type = type.getSelectionModel().getSelectedItem();
+		String nomF = this.nom.getText();
+		String descriptionF = this.description.getText();
+		if (!this.prix.getText().equals("") && verifAjoutform(Type, nomF, descriptionF)) {
+			int prixF = Integer.parseInt(this.prix.getText());
+			Materiel materiel = new Materiel(nomF, descriptionF, Type, prixF, "Nouveau");
+
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Adding Materiel Confirmation");
+			alert.setHeaderText("New Materiel will be added");
+			alert.setContentText("Are you ok with this?");
+			Optional<ButtonType> result = alert.showAndWait();
+
+			if (result.get() == ButtonType.OK) {
+				MaterielDao.AjouterMateriel(materiel);
+				handleReset(event);
+			} else {
+				handleReset(event);
+			}
+		} else {
+			Notif.show("Formulaire invalide ");
+
+		}
+	}
 }

@@ -32,7 +32,7 @@ public class PFA2019 extends Application {
     public void start(Stage primaryStage) {
        this.stage =primaryStage;
         try {
-            Scene scene = new Scene((AnchorPane)FXMLLoader.load(getClass().getClassLoader().getResource("View/FXML.fxml")));
+            Scene scene = new Scene((AnchorPane)FXMLLoader.load(getClass().getClassLoader().getResource("View/InterfaceSecretaire.fxml")));
             stage.setScene(scene);
             stage.setTitle("Authentification");
             stage.setResizable(false);

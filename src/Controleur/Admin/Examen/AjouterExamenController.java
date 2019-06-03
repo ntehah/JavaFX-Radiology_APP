@@ -93,7 +93,8 @@ public class AjouterExamenController implements Initializable {
             if (result.get() == ButtonType.OK) {
                 ExamenDao.AjouterExamen(examen);
                 handleReset(event);
-            } else {
+            } 
+            else {
                 handleReset(event);
             }
         }
@@ -143,12 +144,12 @@ public class AjouterExamenController implements Initializable {
 				String prixtext = prix.getText();
 				if (arg1)
 					try {
-						float m = Integer.parseInt(prixtext);
+						
 						if (prixtext.matches("[0-9.]*")==false) {
 							l_prix.setText("prix  Invalid !!");
 							prix_valide = false;
 						} else if (prix.getText().isEmpty()) {
-                                                        l_prix.setText("le champs est vide");
+                            l_prix.setText("le champs est vide");
 							prix_valide = false;
 								
 						}
